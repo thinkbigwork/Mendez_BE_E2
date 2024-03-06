@@ -80,18 +80,35 @@ class ProductManager {
             const allProducts = await this.readDataFromFile()
             const index = allProducts.findIndex(p => p.id === id)
             if (index !== -1) {
-                const deleteProduct = allProducts.splice(index, 1)
+                //const deleteProduct = allProducts.splice(index, 1)
+                allProducts.splice(index, 1)
                 await fs.promises.writeFile(this.path, JSON.stringify(allProducts), 'utf-8')
                 console.log(`Producto con ID ${id} eliminado correctamente`)
-                return deleteProduct
             } else {
                 console.log(`No se encontró un producto con el ID ${id}`)
             }
         } catch (err) {
             console.error('Error al eliminar producto', err)
+        }
+    }
+    // Metodo para actualizar un producto
+    async updateProduct(product) {
+        try {
+            const allProducts = await this.readDataFromFile()
+            const index = allProducts.findIndex(p => p.id === product.id)
+            if (index !== -1) {
+                allProducts.splice(index, 1, product)
+                await fs.promises.writeFile(this.path, JSON.stringify(allProducts), 'utf-8')
+                console.log(`Producto con ID ${product.id} actualizado correctamente`)
+            } else {
+                console.log(`No se encontró un producto con el ID ${product.id}`)
+            }
+        } catch (err) {
+            console.error('Error al actualizar producto', err)
             return
         }
     }
+    
 }
 
 
@@ -164,9 +181,21 @@ const main = async () => {
     const product = await bd.getProductsId(2)
     console.log('-----Producto buscado por ID-----\n', product)
 
+    // Actualizar un producto (cambiar stock y descripción)
+    console.log('\n-----Producto actualizado-----')
+    await bd.updateProduct({
+        id: 2,
+        title: 'Pera',
+        description: 'Pera de oferta',
+        price: 1200,
+        thumbnail: '../archivo2.jpg',
+        code: codeGenerator(),
+        stock: 100000
+        })
+
     // Eliminar un producto por id
+    console.log('\n-----Producto eliminado por ID-----')
     const deletedProduct = await bd.deleteProduct(3)
-    console.log('-----Producto eliminado por ID-----\n', deletedProduct)
 }
 
 main()
